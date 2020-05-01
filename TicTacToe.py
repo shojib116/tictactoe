@@ -1,19 +1,21 @@
 import os
+import time
 from itertools import cycle
 from colorama import Fore, Back, Style, init
 
 init()
+#clears the terminal
 def clear():
     os.system('cls')
 
-
-def allSame(l):
-    if l.count(l[0]) == gameSize:
-        return True
-    return False
-
-
+#checks if anybody has won
 def checkWin():
+    #checks if all elements are same
+    def allSame(l):
+        if l.count(l[0]) == gameSize:
+            return True
+        return False
+
     #Diagonal check
     pDiag = []
     sDiag = []
@@ -39,11 +41,11 @@ def checkWin():
             return True
     return False
 
-
+#updates the game board after each choice
 def updateBoard(sign, row, collumn):
     board[row][collumn] = sign
 
-
+#checks if the choice of the player is valid
 def validateChoice(row, collumn):
     if choice < 1 or choice > 9:
         print('The position must be from 1 to', gameSize ** 2)
@@ -53,7 +55,7 @@ def validateChoice(row, collumn):
         return False
     return True
 
-
+#prints the gameboard
 def displayBoard():
     clear()
     for row in board:
@@ -68,6 +70,15 @@ def displayBoard():
         print('')
     print('')
 
+#prints the score of current game
+#score is updated after score game is won
+def printScore():
+    for key, value in score.items():
+        print(key, ':', value, end = '     ')
+
+    print('')
+
+
 play = True
 clear()
 print('Enter player names.\nPlayer 1:', end = ' ')
@@ -75,6 +86,11 @@ player1 = input().strip()
 print('Player 2:', end = ' ')
 player2 = input().strip()
 player = cycle([player1, player2])
+score = {
+    player1 : 0,
+    player2 : 0,
+    'Draw' : 0
+}
 while play:
     global board
     sign = cycle(['x', 'o'])
@@ -83,6 +99,7 @@ while play:
     board = [[next(placeHolder) for i in range(gameSize)] for _ in range(gameSize)]
     gameWon = False
     displayBoard()
+    printScore()
     count = 0
     counted = False
     while not gameWon:
@@ -102,14 +119,17 @@ while play:
                 continue
         updateBoard(currentSign, row, collumn)
         displayBoard()
+        printScore()
         gameWon = checkWin()
         count += 1
         if count == 9 and gameWon == False:
             print(Fore.BLUE + 'This round is a draw' + Style.RESET_ALL)
+            score['Draw'] += 1
             counted = True
             gameWon = True
         if gameWon:
             if gameWon == True and counted == False:
+                score[currentPlayer] += 1
                 if count % 2 != 0:
                     print(Fore.RED + currentPlayer + Style.RESET_ALL, 'won this round.')
                 else:
@@ -118,6 +138,9 @@ while play:
             playAgain = input()
             if playAgain.lower() == 'y':
                 print('restarting....')
+                time.sleep(0.5)
                 play = True
             else:
+                print('quiting....')
+                time.sleep(0.5)
                 play = False
